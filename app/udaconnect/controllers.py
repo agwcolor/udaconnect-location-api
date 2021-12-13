@@ -5,7 +5,7 @@ from flask import request
 from flask_accepts import accepts, responds
 from flask_restx import Namespace, Resource
 from typing import Optional, List
-
+import json
 from app import g
 # from kafka import KafkaConsumer
 
@@ -57,10 +57,17 @@ class LocationResource(Resource):
                 "creation_time":"2020-08-18T10:37:0"
                 }
         # print(data, " is the data")
-        new_location: Location = LocationService.create(data)
+        data_json = json.dumps(data)
+        kafka_data = data_json
+        kafka_producer = g.kafka_producer
+        kafka_producer.send("connections", value=kafka_data)
+        kafka_producer.flush()
+        new_location = LocationService.create(data)
+        # new_location: Location = LocationService.create(data)
+
         print(new_location, "is the location")
         return new_location
-    
+
 
     @responds(schema=LocationSchema, many=True)
     def get(self) -> List[Location]:

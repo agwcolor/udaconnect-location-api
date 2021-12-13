@@ -7,3 +7,4 @@ requirements_old.txt
 **/.venv
 **/__pycache__
 **/.git
+.DS_Store

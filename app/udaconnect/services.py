@@ -39,25 +39,29 @@ class LocationService:
             logger.warning(f"Unexpected data format in payload: {validation_results}")
             raise Exception(f"Invalid payload: {validation_results}")
 
-        # set up kafka producer for new location data
-        kafka_data = location
-        print(kafka_data, " is the kafka data")
-        kafka_producer = g.kafka_producer
-        kafka_producer.send("connections", value=kafka_data)
-        kafka_producer.flush()
-
         # set up kafka consumer to put into database
-        consumer = KafkaConsumer("connections")
+        consumer = KafkaConsumer(
+            'connections',
+            bootstrap_servers=['localhost:9092'],
+            auto_offset_reset='earliest',
+            enable_auto_commit=True,
+            )
         for message in consumer:
+            print(type(message), "Is the message type")
+            message_value = message.value
+            message_converted = json.loads(message_value.decode('utf-8'))
+            print("This is the message converted", message_converted)
             new_location = Location()
             new_location.person_id = location["person_id"]
             new_location.creation_time = location["creation_time"]
             new_location.coordinate = ST_Point(location["latitude"], location["longitude"])
-            print(new_location, "is the object")
+            print(new_location, "is the location transmitted by kafka")
             # db.session.add(new_location)
             # db.session.commit()
-            print("I'm in the consumer and here's the message!", message)
+            # print("I'm in the consumer and here's the message!", message)
 
-        return location
+        # return location
+        print(message, " is the message!")
+        return message
 
 
