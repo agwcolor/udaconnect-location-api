@@ -26,7 +26,7 @@ def create_app(env=None):
     def before_request():
         # Set up a Kafka producer
         TOPIC_NAME = 'connections'
-        KAFKA_SERVER = 'localhost:9092'
+        KAFKA_SERVER = 'kafka-headless.default.svc.cluster.local:9092'
         producer = KafkaProducer(
             bootstrap_servers=KAFKA_SERVER,
             api_version=(0,10,1),

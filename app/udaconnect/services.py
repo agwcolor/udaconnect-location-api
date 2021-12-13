@@ -11,7 +11,7 @@ from app import g
 from kafka import KafkaConsumer
 
 
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger("udaconnect-location-api")
 
 class LocationService:
@@ -42,9 +42,7 @@ class LocationService:
         # set up kafka consumer to put into database
         consumer = KafkaConsumer(
             'connections',
-            bootstrap_servers=['localhost:9092'],
-            auto_offset_reset='earliest',
-            enable_auto_commit=True,
+            bootstrap_servers='kafka-headless.default.svc.cluster.local:9092'
             )
         for message in consumer:
             print(type(message), "Is the message type")

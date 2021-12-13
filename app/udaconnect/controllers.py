@@ -1,3 +1,4 @@
+import logging
 from app.udaconnect.models import Location
 from app.udaconnect.schemas import LocationSchema
 from app.udaconnect.services import LocationService
@@ -11,7 +12,7 @@ from app import g
 
 
 DATE_FORMAT = "%Y-%m-%d"
-
+logging.basicConfig(level=logging.DEBUG)
 api = Namespace("UdaConnect", description="Connections via geolocation.")  # noqa
 
 
@@ -57,8 +58,7 @@ class LocationResource(Resource):
                 "creation_time":"2020-08-18T10:37:0"
                 }
         # print(data, " is the data")
-        data_json = json.dumps(data)
-        kafka_data = data_json
+        kafka_data = json.dumps(data)
         kafka_producer = g.kafka_producer
         kafka_producer.send("connections", value=kafka_data)
         kafka_producer.flush()
@@ -74,12 +74,12 @@ class LocationResource(Resource):
         locations: List[Location] = LocationService.retrieve_all()
         return locations
 
-    @api.route("/locations/<location_id>")
-    class LocationResource(Resource):
-        @responds(schema=LocationSchema)
-        def get(self, location_id) -> Location:
-           location: Location = LocationService.retrieve(location_id)
-           return location
+@api.route("/locations/<location_id>")
+class LocationResource(Resource):
+    @responds(schema=LocationSchema)
+    def get(self, location_id) -> Location:
+        location: Location = LocationService.retrieve(location_id)
+        return location
 
 
 # Troubleshooting Notes
